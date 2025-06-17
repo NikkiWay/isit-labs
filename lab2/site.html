@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Каталог смартфонов</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #eee;
+      padding: 2rem;
+    }
+
+    #output {
+      margin-top: 2rem;
+    }
+
+    select, button {
+      font-size: 1rem;
+      padding: 0.5rem;
+      margin-right: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Выбор смартфонов по бренду</h1>
+  <label for="brandSelect">Бренд:</label>
+  <select id="brandSelect"><option disabled selected>Загрузка...</option></select>
+  <button onclick="loadPhones()">Показать</button>
+
+  <div id="output"></div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", loadBrands);
+
+    function loadBrands() {
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", "phones.xml?t=" + Date.now(), true);
+      xhr.overrideMimeType("text/xml");
+      xhr.onload = function () {
+        const xml = xhr.responseXML;
+        const phones = xml.getElementsByTagName("phone");
+        const brands = new Set();
+
+        for (let phone of phones) {
+          let brand = phone.getElementsByTagName("brand")[0]?.textContent.trim();
+          if (brand) brands.add(brand);
+        }
+
+        const select = document.getElementById("brandSelect");
+        select.innerHTML = "";
+        [...brands].sort().forEach(b => {
+          const opt = document.createElement("option");
+          opt.value = b;
+          opt.textContent = b;
+          select.appendChild(opt);
+        });
+      };
+      xhr.send();
+    }
+
+    function loadPhones() {
+      const selectedBrand = document.getElementById("brandSelect").value;
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", "phones.xml?t=" + Date.now(), true);
+      xhr.overrideMimeType("text/xml");
+
+      xhr.onload = function () {
+        const xml = xhr.responseXML;
+        const phones = xml.getElementsByTagName("phone");
+        let html = "";
+
+        for (let phone of phones) {
+          const brand = phone.getElementsByTagName("brand")[0]?.textContent.trim();
+          if (brand === selectedBrand) {
+            const model = phone.getElementsByTagName("model")[0]?.textContent;
+            const specs = phone.getElementsByTagName("specs")[0]?.children;
+
+            html += `<h2>${model}</h2><ul>`;
+            for (let s of specs) {
+              html += `<li><strong>${s.tagName}:</strong> ${s.textContent}</li>`;
+            }
+            html += "</ul>";
+          }
+        }
+
+        document.getElementById("output").innerHTML = html || "<p>Нет смартфонов данного бренда.</p>";
+      };
+
+      xhr.send();
+    }
+  </script>
+</body>
+</html>

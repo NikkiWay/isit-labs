@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="styles.css"?>	  
+
+<smartphones>
+  <header>
+    <title>Каталог смартфонов</title>
+  </header>
+  
+  <phone>
+    <model>iPhone 15 Pro</model>
+    <brand>Apple</brand>
+    <specs>
+      <release>2023</release>
+      <os>iOS 17</os>
+      <screen>6.1"</screen>
+      <battery>3274 mAh</battery>
+      <price>999$</price>
+    </specs>
+  </phone>
+
+  <phone>
+    <model>Galaxy S23 Ultra</model>
+    <brand>Samsung</brand>
+    <specs>
+      <release>2023</release>
+      <os>Android 13</os>
+      <screen>6.8"</screen>
+      <battery>5000 mAh</battery>
+      <price>1199$</price>
+    </specs>
+  </phone>
+
+  <phone>
+    <model>Pixel 8</model>
+    <brand>Google</brand>
+    <specs>
+      <release>2023</release>
+      <os>Android 14</os>
+      <screen>6.2"</screen>
+      <battery>4575 mAh</battery>
+      <price>699$</price>
+    </specs>
+  </phone>
+
+  <footer>
+    <signature>© SmartWorld Inc.</signature>
+  </footer>
+</smartphones>

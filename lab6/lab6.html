@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>VK Dashboard – Лабораторная работа №5</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+    .section {
+      margin-bottom: 20px;
+      padding: 10px;
+      border-top: 1px solid #eee;
+    }
+    .section label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .section input[type="text"],
+    .section input[type="number"],
+    .section select {
+      width: calc(100% - 20px);
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .section button {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .section button:hover {
+      background-color: #0056b3;
+    }
+    .badge {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 4px;
+      background-color: grey;
+      color: #fff;
+      font-weight: bold;
+    }
+    .badge.authorized {
+      background-color: green;
+    }
+    .groups-list {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .group-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      text-align: center;
+      background-color: #fff;
+      transition: transform 0.2s;
+    }
+    .group-card:hover {
+      transform: scale(1.02);
+    }
+    .group-card img {
+      border-radius: 8px;
+      width: 100%;
+      max-width: 150px;
+      height: auto;
+      margin-bottom: 8px;
+    }
+    .group-card h3 {
+      font-size: 18px;
+      margin: 10px 0 5px;
+      color: #007bff;
+    }
+    .group-card p {
+      font-size: 14px;
+      margin: 2px 0;
+      color: #555;
+    }
+    .group-card a {
+      display: inline-block;
+      margin-top: 8px;
+      text-decoration: none;
+      color: #007bff;
+      font-weight: bold;
+    }
+    #taskResult {
+      background-color: #e9f7ef;
+      padding: 15px;
+      border: 1px solid #b2d8b2;
+      border-radius: 4px;
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
+    .friend-cards-container {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .friend-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      text-align: center;
+      background-color: #fff;
+      transition: transform 0.2s;
+    }
+    .friend-card:hover {
+      transform: scale(1.02);
+    }
+    .friend-card img {
+      border-radius: 8px;
+      width: 100%;
+      max-width: 150px;
+      height: auto;
+      margin-bottom: 8px;
+    }
+    .friend-card h3 {
+      font-size: 18px;
+      margin: 10px 0 5px;
+      color: #007bff;
+    }
+    .friend-card p {
+      font-size: 14px;
+      margin: 2px 0;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>VK Dashboard – Лабораторная работа №5</h1>
+  
+    <div class="section">
+      <h2>Получение Access Token</h2>
+      <label for="appId">App ID:</label>
+      <input type="text" id="appId" placeholder="Введите App ID">
+      
+      <label for="redirectUri">Redirect URI:</label>
+      <input type="text" id="redirectUri" placeholder="Введите Redirect URI">
+      
+      <button id="getAccessTokenBtn">Получить Access Token</button>
+    </div>
+    
+    <div class="section">
+      <h2>Ввод Access Token</h2>
+      <label for="accessToken">Access Token:</label>
+      <input type="text" id="accessToken" placeholder="Вставьте Access Token">
+      <button id="submitTokenBtn">Ввести</button>
+      <span id="authBadge" class="badge">Не авторизован</span>
+    </div>
+    
+    <div class="section">
+      <h2>Группы и встречи</h2>
+      <button id="fetchGroupsBtn">Получить группы и встречи</button>
+      <div id="groupsContainer" class="groups-list"></div>
+    </div>
+    
+    <div class="section">
+      <h2>Лабораторная работа: Вложенные запросы</h2>
+      <label for="taskSelect">Выберите задание:</label>
+      <select id="taskSelect">
+        <option value="1" selected>1. Список моих друзей из группы/встречи</option>
+        <option value="2">2. Лайк верхнему посту друзей, которые были последними в онлайне</option>
+        <option value="3">3. Пост с информацией о 5 группах</option>
+        <option value="4">4. Найти среди друзей друзей аккаунт с максимальным количеством друзей</option>
+        <option value="5">5. Вывести 10 имен из последнего поста в новостной ленте</option>
+      </select>
+ 
+      <div id="groupIdContainer">
+        <label for="groupIdInput">ID группы/встречи:</label>
+        <input type="text" id="groupIdInput" placeholder="Введите ID группы или встречи">
+      </div>
+      
+      <label for="limitInput">Ограничение (количество):</label>
+      <input type="number" id="limitInput" placeholder="Введите число" value="5" min="1">
+      
+      <button id="executeTaskBtn">Выполнить задание</button>
+      <div id="taskResult"></div>
+    </div>
+  </div>
+  
+  <script>
+    let accessToken = '';
+
+    document.getElementById('getAccessTokenBtn').addEventListener('click', function() {
+      const appId = document.getElementById('appId').value.trim();
+      const redirectUri = document.getElementById('redirectUri').value.trim();
+      
+      if (!appId || !redirectUri) {
+        alert('Пожалуйста, заполните App ID и Redirect URI.');
+        return;
+      }
+      
+      const oauthUrl = `https://oauth.vk.com/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&display=page&scope=groups,offline,friends,wall,news,likes&response_type=token&v=5.131`;
+      window.open(oauthUrl, '_blank');
+    });
+    
+    document.getElementById('submitTokenBtn').addEventListener('click', function() {
+      const tokenInput = document.getElementById('accessToken').value.trim();
+      if (!tokenInput) {
+        alert('Пожалуйста, введите Access Token.');
+        return;
+      }
+      accessToken = tokenInput;
+      document.getElementById('authBadge').textContent = 'Авторизован';
+      document.getElementById('authBadge').classList.add('authorized');
+    });
+    
+    document.getElementById('fetchGroupsBtn').addEventListener('click', async function() {
+      if (!accessToken) {
+        alert('Сначала авторизуйтесь, введя Access Token.');
+        return;
+      }
+      const groupsContainer = document.getElementById('groupsContainer');
+      groupsContainer.innerHTML = 'Загрузка...';
+      try {
+        const response = await fetch(`https://api.vk.com/method/groups.get?extended=1&access_token=${accessToken}&v=5.131`);
+        const data = await response.json();
+        if (data.error) {
+          groupsContainer.innerHTML = 'Ошибка: ' + data.error.error_msg;
+          return;
+        }
+        
+        const groups = data.response.items;
+        if (groups.length === 0) {
+          groupsContainer.innerHTML = 'Группы не найдены.';
+          return;
+        }
+        
+        groupsContainer.innerHTML = '';
+        groups.forEach(group => {
+          const card = document.createElement('div');
+          card.className = 'group-card';
+          
+          const img = document.createElement('img');
+          img.src = group.photo_100 || group.photo_50 || '';
+          card.appendChild(img);
+          
+          const nameElem = document.createElement('h3');
+          nameElem.textContent = group.name;
+          card.appendChild(nameElem);
+          
+          const idElem = document.createElement('p');
+          idElem.textContent = 'ID: ' + group.id;
+          card.appendChild(idElem);
+          
+          if (group.members_count !== undefined) {
+            const membersElem = document.createElement('p');
+            membersElem.textContent = 'Участников: ' + group.members_count;
+            card.appendChild(membersElem);
+          }
+          
+          if (group.screen_name) {
+            const linkElem = document.createElement('a');
+            linkElem.href = 'https://vk.com/' + group.screen_name;
+            linkElem.target = '_blank';
+            linkElem.textContent = 'Перейти на страницу';
+            card.appendChild(linkElem);
+          }
+          
+          groupsContainer.appendChild(card);
+        });
+      } catch (error) {
+        groupsContainer.innerHTML = 'Ошибка: ' + error;
+      }
+    });
+    
+    document.getElementById('taskSelect').addEventListener('change', function(){
+      const groupIdContainer = document.getElementById('groupIdContainer');
+      if (this.value === "1") {
+        groupIdContainer.style.display = "block";
+      } else {
+        groupIdContainer.style.display = "none";
+      }
+    });
+    
+    document.getElementById('executeTaskBtn').addEventListener('click', async function(){
+      if (!accessToken) {
+        alert('Сначала авторизуйтесь, введя Access Token.');
+        return;
+      }
+      const task = document.getElementById('taskSelect').value;
+      const limit = document.getElementById('limitInput').value;
+      document.getElementById('taskResult').innerHTML = "Выполнение...";
+      
+      switch(task) {
+        case "1":
+          {
+            const groupId = document.getElementById('groupIdInput').value.trim();
+            if (!groupId) {
+              alert("Пожалуйста, введите ID группы/встречи.");
+              return;
+            }
+            await task1Async(groupId, limit);
+          }
+          break;
+        case "2":
+          await task2Async(limit);
+          break;
+        case "3":
+          await task3Async(limit);
+          break;
+        case "4":
+          await task4Async(limit);
+          break;
+        case "5":
+          await task5Async(limit);
+          break;
+      }
+    });
+    
+    // Задание 1: Вывести список моих друзей, состоящих в указанной группе/встрече с фото и именами
+    async function task1Async(groupId, limit) {
+      const resultDiv = document.getElementById('taskResult');
+      try {
+        const groupResponse = await fetch(`https://api.vk.com/method/groups.getMembers?group_id=${groupId}&access_token=${accessToken}&v=5.131`);
+        const groupData = await groupResponse.json();
+        if (groupData.error) {
+          resultDiv.innerHTML = 'Ошибка: ' + groupData.error.error_msg;
+          return;
+        }
+        const groupMembers = groupData.response.items;
+        
+        const friendsResponse = await fetch(`https://api.vk.com/method/friends.get?access_token=${accessToken}&v=5.131&fields=photo_100,first_name,last_name`);
+        const friendsData = await friendsResponse.json();
+        if (friendsData.error) {
+          resultDiv.innerHTML = 'Ошибка: ' + friendsData.error.error_msg;
+          return;
+        }
+        const myFriends = friendsData.response.items;
+        const groupMemberSet = new Set(groupMembers);
+        const commonFriends = myFriends.filter(friend => groupMemberSet.has(friend.id)).slice(0, limit);
+        
+        if (commonFriends.length === 0) {
+          resultDiv.innerHTML = '<p>Нет моих друзей, состоящих в данной группе.</p>';
+        } else {
+          let outputHTML = `<h3>Найдено друзей: ${commonFriends.length}</h3>`;
+          outputHTML += `<div class="friend-cards-container">`;
+          commonFriends.forEach(friend => {
+            outputHTML += `
+              <div class="friend-card">
+                <img src="${friend.photo_100}" alt="${friend.first_name}">
+                <h3>${friend.first_name} ${friend.last_name}</h3>
+                <p>ID: ${friend.id}</p>
+              </div>`;
+          });
+          outputHTML += `</div>`;
+          resultDiv.innerHTML = outputHTML;
+        }
+      } catch(error) {
+         resultDiv.innerHTML = 'Ошибка: ' + error;
+      }
+    }
+    
+    // Задание 2: Лайк верхнему посту друзей, которые были последними в онлайне
+    async function task2Async(limit) {
+      const resultDiv = document.getElementById('taskResult');
+      try {
+        const friendsResponse = await fetch(`https://api.vk.com/method/friends.get?fields=last_seen&access_token=${accessToken}&v=5.131`);
+        const friendsData = await friendsResponse.json();
+        if (friendsData.error) {
+          resultDiv.innerHTML = 'Ошибка: ' + friendsData.error.error_msg;
+          return;
+        }
+        let friends = friendsData.response.items;
+        friends.sort((a, b) => ((b.last_seen && b.last_seen.time) || 0) - ((a.last_seen && a.last_seen.time) || 0));
+        const selectedFriends = friends.slice(0, limit);
+        let resultText = "";
+        for (const friend of selectedFriends) {
+          const wallResponse = await fetch(`https://api.vk.com/method/wall.get?owner_id=${friend.id}&access_token=${accessToken}&v=5.131&count=1`);
+          const wallData = await wallResponse.json();
+          if (wallData.response && wallData.response.items && wallData.response.items.length > 0) {
+            const post = wallData.response.items[0];
+            const likeResponse = await fetch(`https://api.vk.com/method/likes.add?type=post&owner_id=${friend.id}&item_id=${post.id}&access_token=${accessToken}&v=5.131`);
+            const likeData = await likeResponse.json();
+            if (likeData.response) {
+              resultText += `<p>Лайк поставлен посту ${post.id} у ${friend.first_name} ${friend.last_name}</p>`;
+            } else {
+              resultText += `<p>Ошибка при лайке поста ${post.id} у ${friend.first_name} ${friend.last_name}</p>`;
+            }
+          } else {
+            resultText += `<p>У ${friend.first_name} ${friend.last_name} нет постов</p>`;
+          }
+        }
+        resultDiv.innerHTML = resultText;
+      } catch (error) {
+         resultDiv.innerHTML = 'Ошибка: ' + error;
+      }
+    }
+    
+    // Задание 3: Создать пост с информацией о 5 группах, в которых состоит пользователь
+    async function task3Async(limit) {
+      const resultDiv = document.getElementById('taskResult');
+      try {
+        const groupsResponse = await fetch(`https://api.vk.com/method/groups.get?extended=1&fields=members_count&access_token=${accessToken}&v=5.131&count=${limit}`);
+        const groupsData = await groupsResponse.json();
+        if (groupsData.error) {
+          resultDiv.innerHTML = 'Ошибка: ' + groupsData.error.error_msg;
+          return;
+        }
+        const groups = groupsData.response.items;
+        let message = "Информация о группах:\n";
+        groups.forEach(group => {
+          message += `${group.name}: ${group.members_count} участников\n`;
+        });
+        const postResponse = await fetch(`https://api.vk.com/method/wall.post?message=${encodeURIComponent(message)}&access_token=${accessToken}&v=5.131`);
+        const postData = await postResponse.json();
+        if (postData.response) {
+          resultDiv.innerHTML = `<p>Пост успешно создан. ID поста: ${postData.response.post_id}</p><pre>${message}</pre>`;
+        } else {
+          resultDiv.innerHTML = 'Ошибка при создании поста.';
+        }
+      } catch (error) {
+         resultDiv.innerHTML = 'Ошибка: ' + error;
+      }
+    }
+    
+    // Задание 4: Среди друзей ваших друзей найти аккаунты с максимальным количеством друзей и вывести их в порядке убывания
+    async function task4Async(limit) {
+      const resultDiv = document.getElementById('taskResult');
+      try {
+        const friendsResponse = await fetch(`https://api.vk.com/method/friends.get?access_token=${accessToken}&v=5.131&fields=photo_100,first_name,last_name`);
+        const friendsData = await friendsResponse.json();
+        if (friendsData.error) {
+          resultDiv.innerHTML = 'Ошибка: ' + friendsData.error.error_msg;
+          return;
+        }
+        const myFriends = friendsData.response.items;
+        const friendsWithCounts = await Promise.all(myFriends.map(async (friend) => {
+          try {
+            const friendResponse = await fetch(`https://api.vk.com/method/friends.get?user_id=${friend.id}&access_token=${accessToken}&v=5.131`);
+            const friendData = await friendResponse.json();
+            if (friendData.error) {
+              return { ...friend, friend_count: 0 };
+            }
+            const count = friendData.response.count || friendData.response.items.length;
+            return { ...friend, friend_count: count };
+          } catch (e) {
+            return { ...friend, friend_count: 0 };
+          }
+        }));
+        friendsWithCounts.sort((a, b) => b.friend_count - a.friend_count);
+        const outputFriends = friendsWithCounts.slice(0, limit);
+        if (outputFriends.length === 0) {
+          resultDiv.innerHTML = '<p>Нет данных о друзьях.</p>';
+        } else {
+          let outputHTML = `<h3>Найдено друзей: ${outputFriends.length}</h3>`;
+          outputHTML += `<div class="friend-cards-container">`;
+          outputFriends.forEach(friend => {
+            outputHTML += `
+              <div class="friend-card">
+                <img src="${friend.photo_100}" alt="${friend.first_name}">
+                <h3>${friend.first_name} ${friend.last_name}</h3>
+                <p>ID: ${friend.id}</p>
+                <p>Друзей: ${friend.friend_count}</p>
+              </div>`;
+          });
+          outputHTML += `</div>`;
+          resultDiv.innerHTML = outputHTML;
+        }
+      } catch (error) {
+         resultDiv.innerHTML = 'Ошибка: ' + error;
+      }
+    }
+    
+    // Задание 5: Вывести 10 имен из последнего поста в новостной ленте (друзей автора или участников группы)
+    async function task5Async(limit) {
+      const resultDiv = document.getElementById('taskResult');
+      try {
+        const newsResponse = await fetch(`https://api.vk.com/method/newsfeed.get?access_token=${accessToken}&v=5.131&count=1`);
+        const newsData = await newsResponse.json();
+        if (newsData.error) {
+          resultDiv.innerHTML = 'Ошибка: ' + newsData.error.error_msg;
+          return;
+        }
+        if (!newsData.response.items || newsData.response.items.length === 0) {
+          resultDiv.innerHTML = 'Нет постов в новостной ленте.';
+          return;
+        }
+        const post = newsData.response.items[0];
+        const sourceId = post.source_id;
+        if (sourceId > 0) {
+          const friendsResponse = await fetch(`https://api.vk.com/method/friends.get?user_id=${sourceId}&access_token=${accessToken}&v=5.131&count=${limit}`);
+          const friendsData = await friendsResponse.json();
+          if (friendsData.error) {
+            resultDiv.innerHTML = 'Ошибка: ' + friendsData.error.error_msg;
+            return;
+          }
+          const friendIds = friendsData.response.items;
+          const usersResponse = await fetch(`https://api.vk.com/method/users.get?user_ids=${friendIds.join(',')}&access_token=${accessToken}&v=5.131`);
+          const usersData = await usersResponse.json();
+          if (usersData.error) {
+            resultDiv.innerHTML = 'Ошибка: ' + usersData.error.error_msg;
+            return;
+          }
+          const names = usersData.response.map(u => `${u.first_name} ${u.last_name}`);
+          resultDiv.innerHTML = `<p>Друзья автора поста:</p><p>${names.join(', ')}</p>`;
+        } else {
+          const groupId = Math.abs(sourceId);
+          const membersResponse = await fetch(`https://api.vk.com/method/groups.getMembers?group_id=${groupId}&access_token=${accessToken}&v=5.131&count=${limit}`);
+          const membersData = await membersResponse.json();
+          if (membersData.error) {
+            resultDiv.innerHTML = 'Ошибка: ' + membersData.error.error_msg;
+            return;
+          }
+          const memberIds = membersData.response.items;
+          const usersResponse = await fetch(`https://api.vk.com/method/users.get?user_ids=${memberIds.join(',')}&access_token=${accessToken}&v=5.131`);
+          const usersData = await usersResponse.json();
+          if (usersData.error) {
+            resultDiv.innerHTML = 'Ошибка: ' + usersData.error.error_msg;
+            return;
+          }
+          const names = usersData.response.map(u => `${u.first_name} ${u.last_name}`);
+          resultDiv.innerHTML = `<p>Участники группы-автора поста:</p><p>${names.join(', ')}</p>`;
+        }
+      } catch (error) {
+         resultDiv.innerHTML = 'Ошибка: ' + error;
+      }
+    }
+  </script>
+</body>
+</html>

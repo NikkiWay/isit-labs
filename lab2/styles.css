@@ -1,0 +1,59 @@
+header {
+  font-size: 28px;
+  padding: 10px;
+  background-color: #111;
+  color: #fff;
+  text-align: center;
+}
+
+smartphones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  padding: 1rem;
+}
+
+phone {
+  background: #f1f1f1;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 1rem;
+  width: 280px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+model {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #2c3e50;
+  display: block;
+}
+
+brand {
+  color: #2980b9;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+specs {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+}
+
+specs > * {
+  background: #fff;
+  padding: 0.3rem 0.6rem;
+  border-left: 4px solid #3498db;
+}
+
+signature {
+  display: block;
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.8rem;
+  color: #777;
+}

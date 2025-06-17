@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>VK Wall Publisher</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>VK Wall Poster</h1>
+
+    <div class="glass-container">
+        <div class="token-section">
+            <input type="password" id="accessToken" class="token-input" placeholder="🔐 Введите токен">
+            <span class="toggle-visibility" onclick="toggleTokenVisibility()">👁️</span>
+        </div>
+
+        <button class="primary-btn" onclick="loadFriends()">Загрузить друзей</button>
+        <div id="friends-list" class="friends-grid"></div>
+
+        <div class="visibility-options">
+            <label>
+                <input type="radio" class="visibility-radio" name="visibility" value="1" checked>
+                Только для друзей
+            </label>
+            <label>
+                <input type="radio" class="visibility-radio" name="visibility" value="0">
+                Для всех
+            </label>
+        </div>
+
+        <textarea id="messageInput" class="message-box" placeholder="💬 Напишите сообщение..." oninput="autoResize(this)"></textarea>
+
+        <button class="primary-btn" onclick="postToWall()">📤 Опубликовать</button>
+
+        <div id="statusMessage" class="status-message"></div>
+    </div>
+
+    <script>
+        let selectedFriendIds = new Set();
+            let currentUserId = null;
+            const apiVersion = '5.199';
+
+            function toggleTokenVisibility() {
+                const input = document.getElementById('accessToken');
+                input.type = input.type === 'password' ? 'text' : 'password';
+            }
+
+            function autoResize(textarea) {
+                textarea.style.height = 'auto';
+                textarea.style.height = textarea.scrollHeight + 'px';
+            }
+
+            async function loadFriends() {
+                const token = document.getElementById('accessToken').value;
+                if (!token) {
+                    showStatus('Введите токен доступа', 'error');
+                    return;
+                }
+
+                try {
+                    const [friendsData, userData] = await Promise.all([
+                        fetchFriends(token),
+                        fetchCurrentUser(token)
+                    ]);
+
+                    const friends = friendsData.response?.items || [];
+                    const currentUser = userData.response?.[0] || null;
+                    currentUserId = currentUser?.id;
+
+                    if (!currentUser) throw new Error('Не удалось получить данные пользователя');
+
+                    const allUsers = [
+                        { ...currentUser, can_post: 1 },
+                        ...friends.filter(friend => friend.can_post)
+                    ];
+
+                    renderFriendsList(allUsers, currentUser.id);
+                } catch (error) {
+                    showStatus(`Ошибка: ${error.error_msg || error.message}`, 'error');
+                }
+            }
+
+            function fetchFriends(token) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: 'https://api.vk.com/method/friends.get',
+                        dataType: 'jsonp',
+                        data: {
+                            access_token: token,
+                            v: '5.199',
+                            fields: 'photo_200_orig,first_name,last_name,can_post,id',
+                            order: 'hints',
+                            count: 100
+                        },
+                        success: resolve,
+                        error: (err) => reject(err.responseJSON || err)
+                    });
+                });
+            }
+
+            function fetchCurrentUser(token) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: 'https://api.vk.com/method/users.get',
+                        dataType: 'jsonp',
+                        data: {
+                            access_token: token,
+                            v: '5.199',
+                            fields: 'photo_200_orig,first_name,last_name,id'
+                        },
+                        success: resolve,
+                        error: (err) => reject(err.responseJSON || err)
+                    });
+                });
+            }
+
+            function renderFriendsList(users, currentUserId) {
+                const friendsList = document.getElementById('friends-list');
+                friendsList.innerHTML = users.map(user => `
+                    <label class="friend-card ${user.id === currentUserId ? 'current-user' : ''}">
+                        <input type="checkbox" class="friend-checkbox" 
+                            value="${user.id}" 
+                            onchange="toggleFriendSelection(${user.id}, this)">
+                        <img src="${user.photo_200_orig}" 
+                            alt="${user.first_name} ${user.last_name}">
+                        <span>
+                            ${user.first_name} ${user.last_name}
+                            ${user.id === currentUserId ? ' (Вы)' : ''}
+                        </span>
+                    </label>
+                `).join('');
+            }
+
+            function toggleFriendSelection(friendId, checkbox) {
+                if (checkbox.checked) {
+                    selectedFriendIds.add(friendId);
+                } else {
+                    selectedFriendIds.delete(friendId);
+                }
+                updateVisibilityControls();
+            }
+
+            function updateVisibilityControls() {
+                const hasNonCurrentUser = Array.from(selectedFriendIds).some(id => id !== currentUserId);
+                const radios = document.querySelectorAll('.visibility-radio');
+
+                radios.forEach(radio => {
+                    radio.disabled = hasNonCurrentUser;
+                    if (hasNonCurrentUser) radio.checked = false;
+                });
+            }
+
+            async function postToWall() {
+            const token = document.getElementById('accessToken').value;
+            const message = document.getElementById('messageInput').value;
+            const friendsOnly = document.querySelector('input[name="visibility"]:checked')?.value || '0';
+
+            if (!token || selectedFriendIds.size === 0 || !message) {
+                showStatus('Заполните все обязательные поля', 'error');
+                return;
+            }
+
+            try {
+                const results = await Promise.all(
+                    Array.from(selectedFriendIds).map(ownerId => 
+                        sendPostRequest(token, ownerId, message, friendsOnly)
+                    )
+                );
+
+                const successCount = results.filter(res => res.response?.post_id).length;
+                showStatus(`Успешно опубликовано ${successCount}/${selectedFriendIds.size} постов`, 'success');
+                document.getElementById('messageInput').value = '';
+
+            } catch (error) {
+                showStatus(`Ошибка публикации: ${error.message}`, 'error');
+            }
+        }
+
+            function sendPostRequest(token, ownerId, message, friendsOnly) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: 'https://api.vk.com/method/wall.post',
+                        dataType: 'jsonp',
+                        data: {
+                            access_token: token,
+                            owner_id: ownerId,
+                            friends_only: ownerId === currentUserId ? friendsOnly : 0,
+                            message: message,
+                            v: apiVersion
+                        },
+                        success: resolve,
+                        error: (err) => reject(err.responseJSON || err)
+                    });
+                });
+            }
+
+            function showStatus(message, type) {
+                const statusDiv = document.getElementById('statusMessage');
+                statusDiv.className = `status-message ${type}`;
+                statusDiv.textContent = message;
+                statusDiv.style.display = 'block';
+
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+    </script>
+</body>
+</html>

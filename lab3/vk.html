@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Друзья ВКонтакте</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --card-shadow: rgba(0, 0, 0, 0.1);
+            --accent: #4c75a3;
+            --text-color: #333;
+        }
+
+        body {
+            margin: 0;
+            padding: 2rem;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .friends-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .friend-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 6px 12px var(--card-shadow);
+            overflow: hidden;
+            width: 160px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .friend-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .friend-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .friend-card-name {
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #222;
+        }
+
+        @media (max-width: 500px) {
+            .friend-card {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Мои друзья ВКонтакте</h1>
+    <div class="friends-container" id="friendsList"></div>
+
+    <script>
+        $(document).ready(function () {
+            const user_id = 'USR_ID';       // Замените на свой VK ID
+            const access_token = 'VK_TKN';  // Замените на свой токен
+            const apiUrl = `https://api.vk.com/method/friends.get?user_id=${user_id}&fields=first_name,last_name,photo_200_orig&access_token=${access_token}&v=5.199`;
+
+            $.getJSON({
+                url: apiUrl,
+                jsonp: "callback",
+                dataType: "jsonp"
+            }).done(function (data) {
+                const list = $('#friendsList');
+                if (data.response?.items?.length) {
+                    data.response.items.forEach(friend => {
+                        const card = `
+                            <div class="friend-card">
+                                <img src="${friend.photo_200_orig}" alt="${friend.first_name} ${friend.last_name}">
+                                <div class="friend-card-name">${friend.first_name} ${friend.last_name}</div>
+                            </div>
+                        `;
+                        list.append(card);
+                    });
+                } else {
+                    list.append('<p>Не удалось загрузить список друзей.</p>');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

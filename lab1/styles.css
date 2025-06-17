@@ -1,0 +1,81 @@
+solarsystem {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+  background: #001f3f;
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+}
+
+solarsystem-header {
+  font-size: 28px;
+  text-align: center;
+  padding: 1rem;
+  background: #0074D9;
+  color: white;
+  border-radius: 10px;
+}
+
+planet {
+  display: block;
+  background: #111;
+  padding: 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  border: 1px solid #0074D9;
+}
+
+name {
+  display: block;
+  font-size: 1.8rem;
+  color: #7FDBFF;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+type {
+  font-style: italic;
+  color: #39CCCC;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+details {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #444;
+}
+
+/* Уникальные стили для каждого третьего уровня */
+mass {
+  color: #FFDC00;
+  font-size: 0.95rem;
+}
+
+radius {
+  color: #FF851B;
+  font-size: 0.95rem;
+}
+
+distance {
+  color: #2ECC40;
+  font-size: 0.95rem;
+}
+
+discovered {
+  color: #B10DC9;
+  font-size: 0.95rem;
+}
+
+author-sign {
+  display: block;
+  text-align: center;
+  padding: 1rem;
+  font-size: 1rem;
+  border-top: 1px solid #aaa;
+  margin-top: 2rem;
+}

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="styles.css"?>
+
+<solarsystem>
+  <solarsystem-header>
+    <title>Планеты Солнечной системы</title>
+  </solarsystem-header>
+
+  <planet>
+    <name>Меркурий</name>
+    <type>Террестриальная</type>
+    <details>
+      <mass>3.301 × 10^23 кг</mass>
+      <radius>2439.7 км</radius>
+      <distance>57.9 млн км</distance>
+      <discovered>Известен с древности</discovered>
+    </details>
+  </planet>
+
+  <planet>
+    <name>Венера</name>
+    <type>Террестриальная</type>
+    <details>
+      <mass>4.867 × 10^24 кг</mass>
+      <radius>6051.8 км</radius>
+      <distance>108.2 млн км</distance>
+      <discovered>Известна с древности</discovered>
+    </details>
+  </planet>
+
+  <planet>
+    <name>Земля</name>
+    <type>Террестриальная</type>
+    <details>
+      <mass>5.972 × 10^24 кг</mass>
+      <radius>6371 км</radius>
+      <distance>149.6 млн км</distance>
+      <discovered>Известна с древности</discovered>
+    </details>
+  </planet>
+
+  <planet>
+    <name>Марс</name>
+    <type>Террестриальная</type>
+    <details>
+      <mass>6.417 × 10^23 кг</mass>
+      <radius>3389.5 км</radius>
+      <distance>227.9 млн км</distance>
+      <discovered>Известен с древности</discovered>
+    </details>
+  </planet>
+
+  <planet>
+    <name>Юпитер</name>
+    <type>Газовый гигант</type>
+    <details>
+      <mass>1.898 × 10^27 кг</mass>
+      <radius>69911 км</radius>
+      <distance>778.5 млн км</distance>
+      <discovered>Галилео Галилей, 1610</discovered>
+    </details>
+  </planet>
+
+  <planet>
+    <name>Сатурн</name>
+    <type>Газовый гигант</type>
+    <details>
+      <mass>5.683 × 10^26 кг</mass>
+      <radius>58232 км</radius>
+      <distance>1.43 млрд км</distance>
+      <discovered>Известен с древности</discovered>
+    </details>
+  </planet>
+
+  <planet>
+    <name>Уран</name>
+    <type>Ледяной гигант</type>
+    <details>
+      <mass>8.681 × 10^25 кг</mass>
+      <radius>25362 км</radius>
+      <distance>2.87 млрд км</distance>
+      <discovered>Уильям Гершель, 1781</discovered>
+    </details>
+  </planet>
+
+  <planet>
+    <name>Нептун</name>
+    <type>Ледяной гигант</type>
+    <details>
+      <mass>1.024 × 10^26 кг</mass>
+      <radius>24622 км</radius>
+      <distance>4.5 млрд км</distance>
+      <discovered>Ирбе и Галле, 1846</discovered>
+    </details>
+  </planet>
+
+  <footer>
+    <author-sign>© Соколов Никита СГН3-64Б</author-sign>
+  </footer>
+</solarsystem>
